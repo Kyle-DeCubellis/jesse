@@ -43,38 +43,15 @@ const C = {
   muted: "#777777", text: "#b8b8b8",
 };
 
-// ─── Images: curated Unsplash to match Jesse's portfolio ───
-// HERO: beach wedding (matches the veil-blowing-in-wind shot)
-// WEDDING FEATURED: ballroom/grand venue (matches the ballroom lift)
-// EVENT: stage/comedy (matches Lil Rhody/Laugh Boston)
-// TRAVEL: coastal/overlook (matches Azores)
-// HEADSHOT: Jesse Dufault portrait
+// ─── Images ───
+// To update gallery images: open jessedufaultphotofilm.pixieset.com,
+// open any photo full-screen, right-click → "Copy image address", paste below.
 const IMG = {
-  // Hero - dramatic beach wedding (matches Jesse's beach veil kiss shot)
-  hero: "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=1920&q=85",
-  // Wedding featured - elegant ballroom/first dance (matches ballroom lift)
-  weddingFeat: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&q=80",
-  // Event featured - concert/stage energy (matches comedy stage work)
-  eventFeat: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1400&q=80",
-  // Travel featured - dramatic coastal overlook (matches Azores shot)
-  travelFeat: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1400&q=80",
-  // Parallax quote bg - sailboats at golden hour (matches IG sailboat)
-  parallax: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1920&q=80",
   // About headshot
   headshot: "https://media.themoviedb.org/t/p/w375_and_h375_face/c9YwsLZk5wpkTwWbEeiHjKVqBjZ.jpg",
-  // Gallery items
-  g1: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=700&q=80",
-  g2: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=700&q=80",
-  g3: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=700&q=80",
-  g4: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=80",
-  g5: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=700&q=80",
-  g6: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=700&q=80",
-  g7: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=700&q=80",
-  g8: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=700&q=80",
-  g9: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=700&q=80",
-  g10: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=700&q=80",
-  g11: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=700&q=80",
-  g12: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=700&q=80",
+  // Gallery — replace with Pixieset CDN URLs (right-click photo → Copy image address)
+  g1: "", g2: "", g3: "", g4: "", g5: "", g6: "",
+  g7: "", g8: "", g9: "", g10: "", g11: "", g12: "",
 };
 
 // ─── Nav ───
@@ -153,38 +130,30 @@ function Nav({ scrollY }) {
   );
 }
 
-// ─── HERO: Power image that depletes as you scroll ───
+// ─── HERO ───
 function Hero({ scrollY, viewH }) {
   const isMobile = useWindowWidth() < 768;
   const p = Math.min(scrollY / (viewH * 1.2), 1);
-  const scale = 1.2 - p * 0.2;
-  const imgOpacity = 1 - p * 0.8;
-  const overlayDark = 0.25 + p * 0.5;
   const textY = p * -80;
   const textOpacity = 1 - p * 1.5;
-  const clipPath = `inset(0 0 ${p * 30}% 0)`;
 
   return (
     <section style={{ position: "relative", height: "110vh", overflow: "hidden", background: C.bg }}>
-      {/* Background image that scales down and fades */}
+      {/* Cinematic grain texture */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: `url(${IMG.hero})`,
-        backgroundSize: "cover", backgroundPosition: "center 25%",
-        transform: `scale(${scale})`,
-        opacity: imgOpacity,
-        clipPath,
-        willChange: "transform, opacity",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+        opacity: 0.6,
       }} />
-      {/* Gradient overlay */}
+      {/* Radial glow from bottom-left */}
       <div style={{
         position: "absolute", inset: 0,
-        background: `linear-gradient(180deg, rgba(8,8,8,${overlayDark * 0.4}) 0%, rgba(8,8,8,0.1) 40%, rgba(8,8,8,${overlayDark}) 100%)`,
+        background: `radial-gradient(ellipse 80% 60% at 20% 100%, rgba(201,168,76,0.07) 0%, transparent 70%)`,
       }} />
-      {/* Vignette edges */}
+      {/* Bottom fade */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse at center, transparent 50%, rgba(8,8,8,0.6) 100%)",
+        background: `linear-gradient(180deg, transparent 50%, ${C.bg} 100%)`,
       }} />
       {/* Content */}
       <div style={{
@@ -228,7 +197,7 @@ function Hero({ scrollY, viewH }) {
             onMouseEnter={e => e.target.style.background = C.goldLight}
             onMouseLeave={e => e.target.style.background = C.gold}
             >View Work</a>
-            <a href="#film" style={{
+            <a href="https://www.youtube.com/watch?v=fYRHDU-0npA" target="_blank" rel="noopener" style={{
               padding: "16px 44px", border: "1px solid rgba(255,255,255,0.15)", color: C.cream,
               fontSize: 10, letterSpacing: 4, textTransform: "uppercase", textDecoration: "none",
               fontFamily: "'Inter', sans-serif", fontWeight: 300, transition: "all 0.3s",
@@ -285,38 +254,46 @@ function TrustBar() {
 }
 
 // ─── Featured Work Blocks ───
-function FeaturedBlock({ image, title, subtitle, desc, index }) {
+function FeaturedBlock({ title, subtitle, desc, index }) {
   const [ref, visible] = useInView(0.08);
   const isEven = index % 2 === 0;
-  const [hovered, setHovered] = useState(false);
   const isMobile = useWindowWidth() < 768;
 
   return (
-    <div ref={ref}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "grid", gridTemplateColumns: isMobile ? "1fr" : isEven ? "1.5fr 1fr" : "1fr 1.5fr",
-        minHeight: isMobile ? "auto" : "75vh", gap: 0, overflow: "hidden",
-        opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(50px)",
-        transition: "all 1.2s cubic-bezier(0.16,1,0.3,1)",
-      }}>
+    <div ref={ref} style={{
+      display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+      minHeight: isMobile ? "auto" : "52vh", overflow: "hidden",
+      borderTop: `1px solid ${C.surface}`,
+      opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(40px)",
+      transition: "all 1.2s cubic-bezier(0.16,1,0.3,1)",
+    }}>
+      {/* Decorative panel */}
       <div style={{
-        order: isMobile ? 0 : isEven ? 0 : 1, position: "relative", overflow: "hidden", minHeight: isMobile ? 280 : 500,
+        order: isMobile ? 1 : isEven ? 0 : 1,
+        background: C.surface,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: isMobile ? "40px 24px" : "64px",
+        minHeight: isMobile ? 160 : "auto",
+        overflow: "hidden", position: "relative",
       }}>
+        <span style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: isMobile ? "clamp(56px, 18vw, 96px)" : "clamp(72px, 8vw, 120px)",
+          fontWeight: 400, fontStyle: "italic",
+          color: "rgba(255,255,255,0.04)", lineHeight: 1,
+          userSelect: "none", letterSpacing: -2,
+          whiteSpace: "nowrap",
+        }}>{subtitle}</span>
         <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: `url(${image})`, backgroundSize: "cover", backgroundPosition: "center",
-          transform: hovered ? "scale(1.04)" : "scale(1)",
-          transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1)",
-        }} />
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(to right, rgba(8,8,8,0) 60%, rgba(8,8,8,0.3) 100%)",
+          position: "absolute", width: 1, top: "20%", bottom: "20%",
+          left: isEven ? "auto" : 0, right: isEven ? 0 : "auto",
+          background: `linear-gradient(to bottom, transparent, ${C.gold}, transparent)`,
+          opacity: 0.4,
         }} />
       </div>
+      {/* Text panel */}
       <div style={{
-        order: isMobile ? 1 : isEven ? 1 : 0,
+        order: isMobile ? 0 : isEven ? 1 : 0,
         display: "flex", flexDirection: "column", justifyContent: "center",
         padding: isMobile ? "48px 24px" : "72px 72px", background: C.bgAlt,
       }}>
@@ -325,7 +302,7 @@ function FeaturedBlock({ image, title, subtitle, desc, index }) {
           <span style={{ fontSize: 10, letterSpacing: 5, textTransform: "uppercase", color: C.gold, fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>{subtitle}</span>
         </div>
         <h2 style={{
-          fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 3.5vw, 48px)",
+          fontFamily: "'Playfair Display', serif", fontSize: "clamp(26px, 3vw, 44px)",
           fontWeight: 400, color: C.cream, lineHeight: 1.2, margin: 0,
         }}>{title}</h2>
         <p style={{
@@ -341,7 +318,7 @@ function FeaturedBlock({ image, title, subtitle, desc, index }) {
         onMouseEnter={e => e.target.style.gap = "20px"}
         onMouseLeave={e => e.target.style.gap = "12px"}
         >
-          View Gallery <span style={{ fontSize: 16 }}>&rarr;</span>
+          See Work on Instagram <span style={{ fontSize: 16 }}>&rarr;</span>
         </a>
       </div>
     </div>
@@ -419,7 +396,8 @@ function GalleryGrid() {
     { src: IMG.g11, cat: "weddings", label: "The Moment" },
     { src: IMG.g12, cat: "events", label: "Lil Rhody Laugh" },
   ];
-  const filtered = filter === "all" ? items : items.filter(i => i.cat === filter);
+  const withPhotos = items.filter(i => i.src);
+  const filtered = filter === "all" ? withPhotos : withPhotos.filter(i => i.cat === filter);
   const cats = ["all", "weddings", "events", "portraits", "adventure"];
 
   return (
@@ -427,7 +405,15 @@ function GalleryGrid() {
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <div style={{ fontSize: 10, letterSpacing: 5, textTransform: "uppercase", color: C.gold, fontFamily: "'Inter', sans-serif", marginBottom: 14 }}>Portfolio</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 44, fontWeight: 400, color: C.cream, margin: 0 }}>Selected Work</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 44, fontWeight: 400, color: C.cream, margin: "0 0 20px" }}>Selected Work</h2>
+          <a href="https://jessedufaultphotofilm.pixieset.com/" target="_blank" rel="noopener" style={{
+            fontSize: 10, letterSpacing: 3, color: C.muted, textDecoration: "none",
+            fontFamily: "'Inter', sans-serif", textTransform: "uppercase",
+            transition: "color 0.3s",
+          }}
+          onMouseEnter={e => e.target.style.color = C.gold}
+          onMouseLeave={e => e.target.style.color = C.muted}
+          >View Full Portfolio &rarr;</a>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: isMobile ? "12px 20px" : 36, marginBottom: 48 }}>
           {cats.map(cat => (
@@ -467,6 +453,7 @@ function GalleryGrid() {
                 <img src={item.src} alt={item.label} style={{
                   width: "100%", height: "100%", objectFit: "cover",
                   transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
+                  background: C.surface,
                 }} />
                 <div data-ov="true" style={{
                   position: "absolute", inset: 0,
@@ -488,17 +475,23 @@ function GalleryGrid() {
   );
 }
 
-// ─── Parallax Quote ───
+// ─── Cinematic Quote ───
 function CinematicQuote() {
   const [ref, visible] = useInView(0.25);
   const isMobile = useWindowWidth() < 768;
   return (
     <section ref={ref} style={{
       position: "relative", padding: isMobile ? "100px 32px" : "180px 64px", overflow: "hidden",
-      backgroundImage: `url(${IMG.parallax})`, backgroundSize: "cover",
-      backgroundPosition: "center", backgroundAttachment: "fixed",
+      background: C.surface,
     }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(8,8,8,0.75)" }} />
+      {/* Grain */}
+      <div style={{
+        position: "absolute", inset: 0, opacity: 0.5,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
+      }} />
+      {/* Gold accent lines */}
+      <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 1, height: 60, background: `linear-gradient(to bottom, ${C.gold}, transparent)`, opacity: 0.4 }} />
+      <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 1, height: 60, background: `linear-gradient(to top, ${C.gold}, transparent)`, opacity: 0.4 }} />
       <div style={{
         position: "relative", zIndex: 2, maxWidth: 720, margin: "0 auto", textAlign: "center",
         opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(30px)",
@@ -797,17 +790,17 @@ export default function App() {
       <Hero scrollY={scrollY} viewH={viewH} />
       <TrustBar />
 
-      <FeaturedBlock image={IMG.weddingFeat}
+      <FeaturedBlock
         title="Your Day, Told Cinematically"
         subtitle="Weddings" index={0}
         desc="From beach elopements in Costa Rica to grand Newport estates. Multi-camera, drone, and a highlight film that will make you relive every moment." />
 
-      <FeaturedBlock image={IMG.eventFeat}
+      <FeaturedBlock
         title="The Energy of the Stage"
         subtitle="Live Events & Comedy" index={1}
         desc="Laugh Boston. Lil Rhody Comedy. National touring acts. Jesse captures the electricity of live performance in a way that makes every artist look legendary." />
 
-      <FeaturedBlock image={IMG.travelFeat}
+      <FeaturedBlock
         title="Stories Worth Telling"
         subtitle="Adventure & Lifestyle" index={2}
         desc="From the Azores to Narragansett Bay. Elopements, editorials, and adventures across 17 countries and counting." />

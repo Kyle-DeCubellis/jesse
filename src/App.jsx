@@ -48,7 +48,7 @@ const C = {
 // WEDDING FEATURED: ballroom/grand venue (matches the ballroom lift)
 // EVENT: stage/comedy (matches Lil Rhody/Laugh Boston)
 // TRAVEL: coastal/overlook (matches Azores)
-// HEADSHOT: suited man (matches Jesse's sunglasses headshot)
+// HEADSHOT: Jesse Dufault portrait
 const IMG = {
   // Hero - dramatic beach wedding (matches Jesse's beach veil kiss shot)
   hero: "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=1920&q=85",

@@ -13,6 +13,16 @@ function useScrollProgress() {
   return { scrollY, viewH };
 }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1200));
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return width;
+}
+
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -38,7 +48,7 @@ const C = {
 // WEDDING FEATURED: ballroom/grand venue (matches the ballroom lift)
 // EVENT: stage/comedy (matches Lil Rhody/Laugh Boston)
 // TRAVEL: coastal/overlook (matches Azores)
-// HEADSHOT: suited man (matches Jesse's sunglasses headshot)
+// HEADSHOT: Jesse Dufault portrait
 const IMG = {
   // Hero - dramatic beach wedding (matches Jesse's beach veil kiss shot)
   hero: "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=1920&q=85",
@@ -51,7 +61,7 @@ const IMG = {
   // Parallax quote bg - sailboats at golden hour (matches IG sailboat)
   parallax: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1920&q=80",
   // About headshot
-  headshot: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
+  headshot: "https://media.themoviedb.org/t/p/w375_and_h375_face/c9YwsLZk5wpkTwWbEeiHjKVqBjZ.jpg",
   // Gallery items
   g1: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=700&q=80",
   g2: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=700&q=80",
@@ -71,46 +81,81 @@ const IMG = {
 function Nav({ scrollY }) {
   const show = scrollY > 80;
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useWindowWidth() < 768;
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      padding: "0 48px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between",
-      background: show ? "rgba(8,8,8,0.94)" : "transparent",
-      backdropFilter: show ? "blur(16px)" : "none",
-      borderBottom: show ? `1px solid rgba(255,255,255,0.05)` : "none",
+      padding: isMobile ? "0 24px" : "0 48px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between",
+      background: show || menuOpen ? "rgba(8,8,8,0.97)" : "transparent",
+      backdropFilter: show || menuOpen ? "blur(16px)" : "none",
+      borderBottom: show || menuOpen ? `1px solid rgba(255,255,255,0.05)` : "none",
       transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
     }}>
       <a href="#" style={{ textDecoration: "none" }}>
-        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 400, letterSpacing: 4, color: C.cream, textTransform: "uppercase" }}>
+        <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: isMobile ? 16 : 20, fontWeight: 400, letterSpacing: 4, color: C.cream, textTransform: "uppercase" }}>
           Jesse Dufault
         </div>
       </a>
-      <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
-        {["Work", "Film", "About", "Contact"].map(item => (
-          <a key={item} href={`#${item.toLowerCase()}`} style={{
-            color: C.muted, fontSize: 11, letterSpacing: 3, textTransform: "uppercase",
-            textDecoration: "none", fontFamily: "'Inter', sans-serif", fontWeight: 400,
-            transition: "color 0.3s",
+      {isMobile ? (
+        <>
+          <button onClick={() => setMenuOpen(o => !o)} style={{
+            background: "none", border: "none", cursor: "pointer", padding: 8,
+            display: "flex", flexDirection: "column", gap: 5,
+          }}>
+            <span style={{ display: "block", width: 22, height: 1, background: menuOpen ? C.gold : C.cream, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(4px, 4px)" : "none" }} />
+            <span style={{ display: "block", width: 22, height: 1, background: C.cream, opacity: menuOpen ? 0 : 1, transition: "all 0.3s" }} />
+            <span style={{ display: "block", width: 22, height: 1, background: menuOpen ? C.gold : C.cream, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(4px, -4px)" : "none" }} />
+          </button>
+          {menuOpen && (
+            <div style={{
+              position: "absolute", top: 68, left: 0, right: 0,
+              background: "rgba(8,8,8,0.97)", borderBottom: `1px solid ${C.surface}`,
+              display: "flex", flexDirection: "column", padding: "24px 24px",
+            }}>
+              {["Work", "Film", "About", "Contact"].map(item => (
+                <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenuOpen(false)} style={{
+                  color: C.muted, fontSize: 12, letterSpacing: 4, textTransform: "uppercase",
+                  textDecoration: "none", fontFamily: "'Inter', sans-serif", fontWeight: 400,
+                  padding: "16px 0", borderBottom: `1px solid ${C.surface}`,
+                }}>{item}</a>
+              ))}
+              <a href="#contact" onClick={() => setMenuOpen(false)} style={{
+                display: "inline-block", marginTop: 20, padding: "14px 28px", border: `1px solid ${C.gold}`,
+                color: C.gold, fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none",
+                fontFamily: "'Inter', sans-serif", fontWeight: 500, textAlign: "center",
+              }}>Inquire</a>
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["Work", "Film", "About", "Contact"].map(item => (
+            <a key={item} href={`#${item.toLowerCase()}`} style={{
+              color: C.muted, fontSize: 11, letterSpacing: 3, textTransform: "uppercase",
+              textDecoration: "none", fontFamily: "'Inter', sans-serif", fontWeight: 400,
+              transition: "color 0.3s",
+            }}
+            onMouseEnter={e => e.target.style.color = C.gold}
+            onMouseLeave={e => e.target.style.color = C.muted}
+            >{item}</a>
+          ))}
+          <a href="#contact" style={{
+            padding: "10px 28px", border: `1px solid ${C.gold}`, color: C.gold,
+            fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none",
+            fontFamily: "'Inter', sans-serif", fontWeight: 500, transition: "all 0.3s",
           }}
-          onMouseEnter={e => e.target.style.color = C.gold}
-          onMouseLeave={e => e.target.style.color = C.muted}
-          >{item}</a>
-        ))}
-        <a href="#contact" style={{
-          padding: "10px 28px", border: `1px solid ${C.gold}`, color: C.gold,
-          fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none",
-          fontFamily: "'Inter', sans-serif", fontWeight: 500, transition: "all 0.3s",
-        }}
-        onMouseEnter={e => { e.target.style.background = C.gold; e.target.style.color = C.bg; }}
-        onMouseLeave={e => { e.target.style.background = "transparent"; e.target.style.color = C.gold; }}
-        >Inquire</a>
-      </div>
+          onMouseEnter={e => { e.target.style.background = C.gold; e.target.style.color = C.bg; }}
+          onMouseLeave={e => { e.target.style.background = "transparent"; e.target.style.color = C.gold; }}
+          >Inquire</a>
+        </div>
+      )}
     </nav>
   );
 }
 
 // ─── HERO: Power image that depletes as you scroll ───
 function Hero({ scrollY, viewH }) {
+  const isMobile = useWindowWidth() < 768;
   const p = Math.min(scrollY / (viewH * 1.2), 1);
   const scale = 1.2 - p * 0.2;
   const imgOpacity = 1 - p * 0.8;
@@ -144,7 +189,7 @@ function Hero({ scrollY, viewH }) {
       {/* Content */}
       <div style={{
         position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column",
-        justifyContent: "flex-end", padding: "0 64px 120px",
+        justifyContent: "flex-end", padding: isMobile ? "0 24px 80px" : "0 64px 120px",
         transform: `translateY(${textY}px)`, opacity: Math.max(textOpacity, 0),
       }}>
         <div style={{ maxWidth: 800 }}>
@@ -210,14 +255,15 @@ function Hero({ scrollY, viewH }) {
 // ─── Credential / Trust Bar ───
 function TrustBar() {
   const [ref, visible] = useInView(0.3);
+  const isMobile = useWindowWidth() < 768;
   return (
     <section ref={ref} style={{
-      padding: "48px 64px", background: C.bg,
+      padding: isMobile ? "40px 24px" : "48px 64px", background: C.bg,
       borderTop: `1px solid ${C.surface}`, borderBottom: `1px solid ${C.surface}`,
     }}>
       <div style={{
         maxWidth: 1100, margin: "0 auto",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
+        display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: isMobile ? "32px 40px" : 0,
         opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(16px)",
         transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
       }}>
@@ -243,19 +289,20 @@ function FeaturedBlock({ image, title, subtitle, desc, index }) {
   const [ref, visible] = useInView(0.08);
   const isEven = index % 2 === 0;
   const [hovered, setHovered] = useState(false);
+  const isMobile = useWindowWidth() < 768;
 
   return (
     <div ref={ref}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: "grid", gridTemplateColumns: isEven ? "1.5fr 1fr" : "1fr 1.5fr",
-        minHeight: "75vh", gap: 0, overflow: "hidden",
+        display: "grid", gridTemplateColumns: isMobile ? "1fr" : isEven ? "1.5fr 1fr" : "1fr 1.5fr",
+        minHeight: isMobile ? "auto" : "75vh", gap: 0, overflow: "hidden",
         opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(50px)",
         transition: "all 1.2s cubic-bezier(0.16,1,0.3,1)",
       }}>
       <div style={{
-        order: isEven ? 0 : 1, position: "relative", overflow: "hidden", minHeight: 500,
+        order: isMobile ? 0 : isEven ? 0 : 1, position: "relative", overflow: "hidden", minHeight: isMobile ? 280 : 500,
       }}>
         <div style={{
           position: "absolute", inset: 0,
@@ -269,9 +316,9 @@ function FeaturedBlock({ image, title, subtitle, desc, index }) {
         }} />
       </div>
       <div style={{
-        order: isEven ? 1 : 0,
+        order: isMobile ? 1 : isEven ? 1 : 0,
         display: "flex", flexDirection: "column", justifyContent: "center",
-        padding: "72px 72px", background: C.bgAlt,
+        padding: isMobile ? "48px 24px" : "72px 72px", background: C.bgAlt,
       }}>
         <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24 }}>
           <div style={{ width: 28, height: 1, background: C.gold }} />
@@ -304,6 +351,7 @@ function FeaturedBlock({ image, title, subtitle, desc, index }) {
 // ─── Film Credits Section (IMDb differentiator) ───
 function FilmCredits() {
   const [ref, visible] = useInView(0.15);
+  const isMobile = useWindowWidth() < 768;
   const credits = [
     { title: "Noble Savages", role: "Music Department", year: "2016" },
     { title: "Normal", role: "Camera & Electrical", year: "2013" },
@@ -313,7 +361,7 @@ function FilmCredits() {
 
   return (
     <section id="film" ref={ref} style={{
-      padding: "120px 64px", background: C.bg,
+      padding: isMobile ? "80px 24px" : "120px 64px", background: C.bg,
       borderTop: `1px solid ${C.surface}`,
       opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(40px)",
       transition: "all 1s cubic-bezier(0.16,1,0.3,1)",
@@ -331,13 +379,14 @@ function FilmCredits() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           {credits.map((c, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "1fr 1fr auto",
+              display: "grid", gridTemplateColumns: isMobile ? "1fr auto" : "1fr 1fr auto",
               padding: "24px 0", borderBottom: `1px solid ${C.surface}`,
-              alignItems: "center",
+              alignItems: "center", gap: isMobile ? "4px 16px" : 0,
             }}>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: C.cream, fontWeight: 400 }}>{c.title}</span>
-              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: C.muted, letterSpacing: 1 }}>{c.role}</span>
+              {!isMobile && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: C.muted, letterSpacing: 1 }}>{c.role}</span>}
               <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: C.gold, letterSpacing: 2 }}>{c.year}</span>
+              {isMobile && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: C.muted, letterSpacing: 1, gridColumn: "1 / -1" }}>{c.role}</span>}
             </div>
           ))}
         </div>
@@ -355,6 +404,7 @@ function FilmCredits() {
 function GalleryGrid() {
   const [filter, setFilter] = useState("all");
   const [ref, visible] = useInView(0.05);
+  const isMobile = useWindowWidth() < 768;
   const items = [
     { src: IMG.g1, cat: "weddings", label: "Newport Ceremony" },
     { src: IMG.g2, cat: "events", label: "Laugh Boston" },
@@ -373,13 +423,13 @@ function GalleryGrid() {
   const cats = ["all", "weddings", "events", "portraits", "adventure"];
 
   return (
-    <section id="work" ref={ref} style={{ padding: "120px 48px", background: C.bgAlt }}>
+    <section id="work" ref={ref} style={{ padding: isMobile ? "80px 16px" : "120px 48px", background: C.bgAlt }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <div style={{ fontSize: 10, letterSpacing: 5, textTransform: "uppercase", color: C.gold, fontFamily: "'Inter', sans-serif", marginBottom: 14 }}>Portfolio</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 44, fontWeight: 400, color: C.cream, margin: 0 }}>Selected Work</h2>
         </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 36, marginBottom: 48 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: isMobile ? "12px 20px" : 36, marginBottom: 48 }}>
           {cats.map(cat => (
             <button key={cat} onClick={() => setFilter(cat)} style={{
               background: "none", border: "none", cursor: "pointer",
@@ -392,7 +442,7 @@ function GalleryGrid() {
           ))}
         </div>
         <div style={{
-          columns: 3, columnGap: 4,
+          columns: isMobile ? 2 : 3, columnGap: 4,
           opacity: visible ? 1 : 0, transition: "opacity 0.8s",
         }}>
           {filtered.map((item, i) => {
@@ -441,9 +491,10 @@ function GalleryGrid() {
 // ─── Parallax Quote ───
 function CinematicQuote() {
   const [ref, visible] = useInView(0.25);
+  const isMobile = useWindowWidth() < 768;
   return (
     <section ref={ref} style={{
-      position: "relative", padding: "180px 64px", overflow: "hidden",
+      position: "relative", padding: isMobile ? "100px 32px" : "180px 64px", overflow: "hidden",
       backgroundImage: `url(${IMG.parallax})`, backgroundSize: "cover",
       backgroundPosition: "center", backgroundAttachment: "fixed",
     }}>
@@ -472,6 +523,7 @@ function CinematicQuote() {
 // ─── Services ───
 function Services() {
   const [ref, visible] = useInView(0.1);
+  const isMobile = useWindowWidth() < 768;
   const services = [
     { title: "Wedding Film & Photo", desc: "Full-day multi-camera coverage, 4K cinematic highlights, drone aerial, and a delivered gallery that makes you relive every moment.", features: ["8-12 Hour Coverage", "Second Shooter", "4K Highlight Reel", "Drone Aerial", "Online Gallery"] },
     { title: "Live Events & Comedy", desc: "From Laugh Boston to Lil Rhody. Dynamic stage photography and recap video that captures the raw energy of a live performance.", features: ["Multi-Camera Setup", "Low-Light Expert", "Same-Day Edits", "Social-Ready Deliverables", "Video & Photo"] },
@@ -479,7 +531,7 @@ function Services() {
   ];
 
   return (
-    <section id="services" ref={ref} style={{ padding: "120px 64px", background: C.bg }}>
+    <section id="services" ref={ref} style={{ padding: isMobile ? "80px 24px" : "120px 64px", background: C.bg }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ marginBottom: 72 }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 20 }}>
@@ -489,7 +541,7 @@ function Services() {
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 44, fontWeight: 400, color: C.cream, margin: 0 }}>What I Offer</h2>
         </div>
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1,
+          display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 1,
           opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(30px)",
           transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
         }}>
@@ -520,19 +572,20 @@ function Services() {
 // ─── About ───
 function About() {
   const [ref, visible] = useInView(0.1);
+  const isMobile = useWindowWidth() < 768;
   return (
     <section id="about" ref={ref} style={{
-      display: "grid", gridTemplateColumns: "1fr 1.3fr", minHeight: "80vh",
+      display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.3fr", minHeight: isMobile ? "auto" : "80vh",
       opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(40px)",
       transition: "all 1s cubic-bezier(0.16,1,0.3,1)",
     }}>
       <div style={{
         backgroundImage: `url(${IMG.headshot})`,
-        backgroundSize: "cover", backgroundPosition: "center top", minHeight: 600,
+        backgroundSize: "cover", backgroundPosition: "center top", minHeight: isMobile ? 360 : 600,
       }} />
       <div style={{
         display: "flex", flexDirection: "column", justifyContent: "center",
-        padding: "80px 80px", background: C.bgAlt,
+        padding: isMobile ? "56px 24px" : "80px 80px", background: C.bgAlt,
       }}>
         <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24 }}>
           <div style={{ width: 28, height: 1, background: C.gold }} />
@@ -580,13 +633,14 @@ function About() {
 function Testimonials() {
   const [active, setActive] = useState(0);
   const [ref, visible] = useInView(0.2);
+  const isMobile = useWindowWidth() < 768;
   const t = [
     { text: "Jesse has an incredible ability to be everywhere at once while being completely invisible. Our wedding photos feel candid, emotional, and cinematic all at the same time.", name: "Amanda & Chris", loc: "Newport, RI" },
     { text: "We've worked with dozens of photographers for our comedy shows. Jesse is the only one who truly captures the energy of a live performance. His work makes our artists look like rock stars.", name: "Laugh Boston", loc: "Boston, MA" },
     { text: "The highlight film Jesse created for our wedding still makes us cry every single time. It's not just a video - it's a piece of art.", name: "Rachel & Tom", loc: "Block Island, RI" },
   ];
   return (
-    <section ref={ref} style={{ padding: "120px 64px", background: C.bg }}>
+    <section ref={ref} style={{ padding: isMobile ? "80px 24px" : "120px 64px", background: C.bg }}>
       <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", opacity: visible ? 1 : 0, transition: "opacity 0.8s" }}>
         <div style={{ fontSize: 10, letterSpacing: 5, textTransform: "uppercase", color: C.gold, fontFamily: "'Inter', sans-serif", marginBottom: 14 }}>Testimonials</div>
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 400, color: C.cream, margin: "0 0 60px" }}>Kind Words</h2>
@@ -614,9 +668,10 @@ function Testimonials() {
 // ─── Contact ───
 function Contact() {
   const [ref, visible] = useInView(0.1);
+  const isMobile = useWindowWidth() < 768;
   return (
     <section id="contact" ref={ref} style={{
-      padding: "120px 64px", background: C.bgAlt,
+      padding: isMobile ? "80px 24px" : "120px 64px", background: C.bgAlt,
       opacity: visible ? 1 : 0, transform: visible ? "none" : "translateY(30px)",
       transition: "all 1s cubic-bezier(0.16,1,0.3,1)",
     }}>
@@ -629,7 +684,7 @@ function Contact() {
           </p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
             {[{ l: "Name", p: "Your name" }, { l: "Email", p: "you@email.com" }].map((f, i) => (
               <div key={i}>
                 <label style={{ display: "block", fontSize: 9, letterSpacing: 3, color: C.muted, textTransform: "uppercase", fontFamily: "'Inter', sans-serif", marginBottom: 8 }}>{f.l}</label>
@@ -643,7 +698,7 @@ function Contact() {
               </div>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
             {[{ l: "Event Type", p: "Wedding, Event, Portrait..." }, { l: "Date", p: "Approximate date" }].map((f, i) => (
               <div key={i}>
                 <label style={{ display: "block", fontSize: 9, letterSpacing: 3, color: C.muted, textTransform: "uppercase", fontFamily: "'Inter', sans-serif", marginBottom: 8 }}>{f.l}</label>
@@ -683,9 +738,10 @@ function Contact() {
 
 // ─── Footer ───
 function Footer() {
+  const isMobile = useWindowWidth() < 768;
   return (
-    <footer style={{ padding: "56px 64px 36px", background: C.bg, borderTop: `1px solid ${C.surface}` }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+    <footer style={{ padding: isMobile ? "48px 24px 28px" : "56px 64px 36px", background: C.bg, borderTop: `1px solid ${C.surface}` }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "flex-end", gap: isMobile ? 28 : 0 }}>
         <div>
           <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 400, color: C.cream, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 }}>Jesse Dufault</div>
           <div style={{ fontSize: 11, color: C.muted, fontFamily: "'Inter', sans-serif", lineHeight: 1.8 }}>
@@ -693,7 +749,7 @@ function Footer() {
             Rhode Island &middot; New York City &middot; Worldwide
           </div>
         </div>
-        <div style={{ display: "flex", gap: 28 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: isMobile ? "12px 20px" : 28 }}>
           {[
             { label: "Instagram", href: "https://www.instagram.com/jessedufault/" },
             { label: "IMDb", href: "https://www.imdb.com/name/nm4668944/" },
